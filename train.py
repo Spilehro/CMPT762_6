@@ -28,10 +28,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from model import BaseNet
+from model import BaseNet, calculate_val_accuracy
 from dataloader import CIFAR100_SFU_CV
+import time
 
-criterion = nn.CrossEntropyLoss()
 
 
 np.random.seed(111)
@@ -41,27 +41,51 @@ torch.manual_seed(111)
 # <<TODO#5>> Based on the val set performance, decide how many
 # epochs are apt for your model.
 # ---------
-EPOCHS = 1
+EPOCHS = 10
 # ---------
 
 IS_GPU = True
 TEST_BS = 256
 TOTAL_CLASSES = 100
 TRAIN_BS = 32
-PATH_TO_CIFAR100_SFU_CV = "../data/"
-# The output of torchvision datasets are PILImage images of range [0, 1].
-# Using transforms.ToTensor(), transform them to Tensors of normalized range
-# [-1, 1].
+PATH_TO_CIFAR100_SFU_CV = "../data/cifar100"
 
+def calculate_val_accuracy(valloader,is_gpu):
+    """ Util function to calculate val set accuracy,
+    both overall and per class accuracy
+    Args:
+        valloader (torch.utils.data.DataLoader): val set 
+        is_gpu (bool): whether to run on GPU
+    Returns:
+        tuple: (overall accuracy, class level accuracy)
+    """    
+    correct = 0.
+    total = 0.
+    predictions = []
 
-# <<TODO#1>> Use transforms.Normalize() with the right parameters to 
-# make the data well conditioned (zero mean, std dev=1) for improved training.
-# <<TODO#2>> Try using transforms.RandomCrop() and/or transforms.RandomHorizontalFlip()
-# to augment training data.
-# After your edits, make sure that test_transform should have the same data
-# normalization parameters as train_transform
-# You shouldn't have any data augmentation in test_transform (val or test data is never augmented).
-# ---------------------
+    class_correct = list(0. for i in range(TOTAL_CLASSES))
+    class_total = list(0. for i in range(TOTAL_CLASSES))
+
+    for data in valloader:
+        images, labels = data
+        if is_gpu:
+            images = images.cuda()
+            labels = labels.cuda()
+        outputs = net(Variable(images))
+        _, predicted = torch.max(outputs.data, 1)
+        predictions.extend(list(predicted.cpu().numpy()))
+        total += labels.size(0)
+        correct += (predicted == labels).sum()
+
+        c = (predicted == labels).squeeze()
+        for i in range(len(labels)):
+            label = labels[i]
+            class_correct[label] += c[i]
+            class_total[label] += 1
+
+    class_accuracy = 100 * np.divide(class_correct, class_total)
+    return 100*correct/total, class_accuracy
+
 
 train_transform = transforms.Compose(
     [transforms.RandomCrop(20),
@@ -97,6 +121,8 @@ print("Test set size: "+str(len(testset)))
 classes = ['apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 'beetle', 'bicycle', 'bottle', 'bowl', 'boy', 'bridge', 'bus', 'butterfly', 'camel', 'can', 'castle', 'caterpillar', 'cattle', 'chair', 'chimpanzee', 'clock', 'cloud', 'cockroach', 'couch', 'crab', 'crocodile', 'cup', 'dinosaur', 'dolphin', 'elephant', 'flatfish', 'forest', 'fox', 'girl', 'hamster', 'house', 'kangaroo', 'keyboard', 'lamp', 'lawn_mower', 'leopard', 'lion', 'lizard', 'lobster', 'man', 'maple_tree', 'motorcycle', 'mountain', 'mouse', 'mushroom', 'oak_tree', 'orange', 'orchid', 'otter', 'palm_tree', 'pear', 'pickup_truck', 'pine_tree', 'plain', 'plate', 'poppy', 'porcupine', 'possum', 'rabbit', 'raccoon', 'ray', 'road', 'rocket', 'rose', 'sea', 'seal', 'shark', 'shrew', 'skunk', 'skyscraper', 'snail', 'snake', 'spider', 'squirrel', 'streetcar', 'sunflower', 'sweet_pepper', 'table', 'tank', 'telephone', 'television', 'tiger', 'tractor', 'train', 'trout', 'tulip', 'turtle', 'wardrobe', 'whale', 'willow_tree', 'wolf', 'woman', 'worm']
 
 
+net = BaseNet()
+criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9)
 
 plt.ioff()
@@ -105,7 +131,7 @@ train_loss_over_epochs = []
 val_accuracy_over_epochs = []
 
 #Create an instance of the nn.module class defined above:
-net = BaseNet()
+
 
 # For training on GPU, we need to transfer net and data onto the GPU
 # http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html#training-on-gpu
@@ -113,7 +139,7 @@ if IS_GPU:
     net = net.cuda()
 
 
-
+start = time.time()
 for epoch in range(EPOCHS):  # loop over the dataset multiple times
 
     running_loss = 0.0
@@ -158,7 +184,7 @@ for epoch in range(EPOCHS):  # loop over the dataset multiple times
 
     train_loss_over_epochs.append(running_loss)
     val_accuracy_over_epochs.append(val_accuracy)
-
+print(time.time()-start)
 plt.subplot(2, 1, 1)
 plt.ylabel('Train loss')
 plt.plot(np.arange(EPOCHS), train_loss_over_epochs, 'k-')
@@ -176,38 +202,3 @@ plt.savefig("plot.png")
 plt.close(fig)
 print('Finished Training')
 # -------------
-def calculate_val_accuracy(valloader, is_gpu):
-    """ Util function to calculate val set accuracy,
-    both overall and per class accuracy
-    Args:
-        valloader (torch.utils.data.DataLoader): val set 
-        is_gpu (bool): whether to run on GPU
-    Returns:
-        tuple: (overall accuracy, class level accuracy)
-    """    
-    correct = 0.
-    total = 0.
-    predictions = []
-
-    class_correct = list(0. for i in range(TOTAL_CLASSES))
-    class_total = list(0. for i in range(TOTAL_CLASSES))
-
-    for data in valloader:
-        images, labels = data
-        if is_gpu:
-            images = images.cuda()
-            labels = labels.cuda()
-        outputs = net(Variable(images))
-        _, predicted = torch.max(outputs.data, 1)
-        predictions.extend(list(predicted.cpu().numpy()))
-        total += labels.size(0)
-        correct += (predicted == labels).sum()
-
-        c = (predicted == labels).squeeze()
-        for i in range(len(labels)):
-            label = labels[i]
-            class_correct[label] += c[i]
-            class_total[label] += 1
-
-    class_accuracy = 100 * np.divide(class_correct, class_total)
-    return 100*correct/total, class_accuracy

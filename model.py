@@ -1,6 +1,10 @@
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
+import torch
+import numpy as np
 TOTAL_CLASSES = 100
+
 
 class BaseNet(nn.Module):
     def __init__(self):
