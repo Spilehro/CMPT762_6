@@ -28,7 +28,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from model import BaseNet, calculate_val_accuracy
+from model import BaseNet
 from dataloader import CIFAR100_SFU_CV
 import time
 
@@ -41,7 +41,7 @@ torch.manual_seed(111)
 # <<TODO#5>> Based on the val set performance, decide how many
 # epochs are apt for your model.
 # ---------
-EPOCHS = 10
+EPOCHS = 1
 # ---------
 
 IS_GPU = True
@@ -49,6 +49,8 @@ TEST_BS = 256
 TOTAL_CLASSES = 100
 TRAIN_BS = 32
 PATH_TO_CIFAR100_SFU_CV = "../data/cifar100"
+plot_root = 'plots/'
+checkpoints_root = 'checkPoints'
 
 def calculate_val_accuracy(valloader,is_gpu):
     """ Util function to calculate val set accuracy,
@@ -138,6 +140,10 @@ val_accuracy_over_epochs = []
 if IS_GPU:
     net = net.cuda()
 
+load_model = True
+if load_model:
+    model_name = 'checkPoints/model_0.pth'
+    net.load_state_dict(torch.load(model_name))
 
 start = time.time()
 for epoch in range(EPOCHS):  # loop over the dataset multiple times
@@ -184,6 +190,9 @@ for epoch in range(EPOCHS):  # loop over the dataset multiple times
 
     train_loss_over_epochs.append(running_loss)
     val_accuracy_over_epochs.append(val_accuracy)
+    if(epoch%10==0 or epoch==EPOCHS-1):
+        torch.save(net.state_dict(), '%s/model_%d.pth' % (checkpoints_root, epoch))
+
 print(time.time()-start)
 plt.subplot(2, 1, 1)
 plt.ylabel('Train loss')
@@ -198,7 +207,8 @@ plt.ylabel('Val accuracy')
 plt.xlabel('Epochs')
 plt.xticks(np.arange(EPOCHS, dtype=int))
 plt.grid(True)
-plt.savefig("plot.png")
+plot_name = plot_root + 'epochs_'+str(EPOCHS)+'_plot.png'
+plt.savefig(plot_name)
 plt.close(fig)
 print('Finished Training')
 # -------------
