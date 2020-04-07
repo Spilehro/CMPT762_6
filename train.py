@@ -48,7 +48,7 @@ IS_GPU = True
 TEST_BS = 256
 TOTAL_CLASSES = 100
 TRAIN_BS = 32
-PATH_TO_CIFAR100_SFU_CV = "/data/"
+PATH_TO_CIFAR100_SFU_CV = "../data/"
 # The output of torchvision datasets are PILImage images of range [0, 1].
 # Using transforms.ToTensor(), transform them to Tensors of normalized range
 # [-1, 1].
