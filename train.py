@@ -41,7 +41,7 @@ torch.manual_seed(111)
 # <<TODO#5>> Based on the val set performance, decide how many
 # epochs are apt for your model.
 # ---------
-EPOCHS = 1
+EPOCHS = 100
 # ---------
 
 IS_GPU = True
@@ -140,7 +140,7 @@ val_accuracy_over_epochs = []
 if IS_GPU:
     net = net.cuda()
 
-load_model = True
+load_model = False
 if load_model:
     model_name = 'checkPoints/model_0.pth'
     net.load_state_dict(torch.load(model_name))
