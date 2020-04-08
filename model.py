@@ -55,7 +55,7 @@ class BaseNet(nn.Module):
         # http://pytorch.org/docs/master/nn.html#torch.nn.Sequential
         
         self.fc_net = nn.Sequential(
-            nn.Linear( 16* 2 * 2, TOTAL_CLASSES//4),
+            nn.Linear( 512* 2 * 2, TOTAL_CLASSES//4),
             nn.ReLU(inplace=True),
             # nn.BatchNorm1d(TOTAL_CLASSES//4),
             # nn.Linear(TOTAL_CLASSES//8, TOTAL_CLASSES//4),
@@ -94,7 +94,7 @@ class BaseNet(nn.Module):
         x = F.relu(self.bn7(self.conv7(x)))
         x = self.pool(x)
 
-        x=F.relu(self.bn8(self.conv8(x)))
+        # x=F.relu(self.bn8(self.conv8(x)))
         # x= self.pool2(x)
 
         channels = x.shape[1]
