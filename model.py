@@ -41,6 +41,13 @@ class BaseNet(nn.Module):
         self.conv6 = nn.Conv2d(128, 256, 5,padding=2)
         self.bn6 = nn.BatchNorm2d(256)
 
+        self.conv7 = nn.Conv2d(256, 512, 5,padding=2)
+        self.bn7 = nn.BatchNorm2d(512)
+        
+        self.conv8 = nn.Conv2d(512,16,1,padding=0)
+        self.bn8 = nn.BatchNorm2d(16)
+        self.pool2 = nn.MaxPool2d(2,stride=2,padding=5)
+
         # <<TODO#3>> Add more linear (fc) layers
         # <<TODO#4>> Add normalization layers after linear and
         # experiment inserting them before or after ReLU (nn.BatchNorm1d)
@@ -48,17 +55,19 @@ class BaseNet(nn.Module):
         # http://pytorch.org/docs/master/nn.html#torch.nn.Sequential
         
         self.fc_net = nn.Sequential(
-            nn.Linear( 256* 4 * 4, TOTAL_CLASSES//4),
+            nn.Linear( 16* 2 * 2, TOTAL_CLASSES//4),
             nn.ReLU(inplace=True),
-            # nn.BatchNorm1d(TOTAL_CLASSES//4)
+            # nn.BatchNorm1d(TOTAL_CLASSES//4),
             # nn.Linear(TOTAL_CLASSES//8, TOTAL_CLASSES//4),
             # nn.ReLU(inplace=True),
             nn.Linear(TOTAL_CLASSES//4, TOTAL_CLASSES//2),
             nn.ReLU(inplace=True),
+            # nn.BatchNorm1d(TOTAL_CLASSES//2),
             # nn.Linear(TOTAL_CLASSES//4, TOTAL_CLASSES//2),
             # nn.ReLU(inplace= True),
             nn.Linear(TOTAL_CLASSES//2, TOTAL_CLASSES),
-            nn.ReLU(inplace= True)
+            nn.ReLU(inplace= True),
+            # nn.BatchNorm1d(TOTAL_CLASSES)
 
         )
 
@@ -77,9 +86,17 @@ class BaseNet(nn.Module):
         x = F.relu(self.bn3(self.conv3(x)))
         x = F.relu(self.bn4(self.conv4(x)))
         x = self.pool(x)
+
         x = F.relu(self.bn5(self.conv5(x)))
         x = F.relu(self.bn6(self.conv6(x)))
         x = self.pool(x)
+
+        x = F.relu(self.bn7(self.conv7(x)))
+        x = self.pool(x)
+
+        x=F.relu(self.bn8(self.conv8(x)))
+        # x= self.pool2(x)
+
         channels = x.shape[1]
         w_h = x.shape[2]
 
