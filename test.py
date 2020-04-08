@@ -80,9 +80,9 @@ start = time.time()
 
 running_loss = 0.0
 
-
+count = 0
 with open("submission.csv","a") as file_csv: 
-    file_csv.write("pred_label\n")   
+    file_csv.write("ID,Prediction1\n")   
     for i, data in enumerate(testloader, 0):
         # get the inputs
         inputs, labels = data
@@ -98,8 +98,10 @@ with open("submission.csv","a") as file_csv:
         predictions = torch.softmax(outputs,dim=1)
         _,predicted = torch.max(predictions,dim=1)
         predicted =predicted.detach().cpu().numpy()
-        np.savetxt(file_csv,predicted.astype(int),fmt='%i',delimiter='\n')
-        print ('statistics')
+        for j in range(len(predicted)):
+            file_csv.write(str(count)+','+str(predicted[j])+'\n')
+            count+=1
+        
     
     
     # Normalizing the loss by the total number of train batches
