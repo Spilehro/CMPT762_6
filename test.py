@@ -81,7 +81,7 @@ start = time.time()
 running_loss = 0.0
 
 count = 0
-with open("submission.csv","a") as file_csv: 
+with open("submission.csv","w") as file_csv: 
     file_csv.write("ID,Prediction1\n")   
     for i, data in enumerate(testloader, 0):
         # get the inputs
