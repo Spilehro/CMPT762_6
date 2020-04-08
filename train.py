@@ -122,10 +122,10 @@ print("Test set size: "+str(len(testset)))
 # The 100 classes for CIFAR100
 classes = ['apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 'beetle', 'bicycle', 'bottle', 'bowl', 'boy', 'bridge', 'bus', 'butterfly', 'camel', 'can', 'castle', 'caterpillar', 'cattle', 'chair', 'chimpanzee', 'clock', 'cloud', 'cockroach', 'couch', 'crab', 'crocodile', 'cup', 'dinosaur', 'dolphin', 'elephant', 'flatfish', 'forest', 'fox', 'girl', 'hamster', 'house', 'kangaroo', 'keyboard', 'lamp', 'lawn_mower', 'leopard', 'lion', 'lizard', 'lobster', 'man', 'maple_tree', 'motorcycle', 'mountain', 'mouse', 'mushroom', 'oak_tree', 'orange', 'orchid', 'otter', 'palm_tree', 'pear', 'pickup_truck', 'pine_tree', 'plain', 'plate', 'poppy', 'porcupine', 'possum', 'rabbit', 'raccoon', 'ray', 'road', 'rocket', 'rose', 'sea', 'seal', 'shark', 'shrew', 'skunk', 'skyscraper', 'snail', 'snake', 'spider', 'squirrel', 'streetcar', 'sunflower', 'sweet_pepper', 'table', 'tank', 'telephone', 'television', 'tiger', 'tractor', 'train', 'trout', 'tulip', 'turtle', 'wardrobe', 'whale', 'willow_tree', 'wolf', 'woman', 'worm']
 
-
+lr = 0.005
 net = BaseNet()
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
 
 plt.ioff()
 fig = plt.figure()
@@ -146,6 +146,7 @@ if load_model:
     net.load_state_dict(torch.load(model_name))
 
 start = time.time()
+max_val = 0
 for epoch in range(EPOCHS):  # loop over the dataset multiple times
 
     running_loss = 0.0
@@ -181,6 +182,9 @@ for epoch in range(EPOCHS):  # loop over the dataset multiple times
     # Calculate validation set accuracy of the existing model
     val_accuracy, val_classwise_accuracy = \
         calculate_val_accuracy(valloader, IS_GPU)
+    if( val_accuracy>max_val):
+        max_val = val_accuracy
+        torch.save(net.state_dict(), '%s/model_best.pth' % (checkpoints_root))
     print('Accuracy of the network on the val images: %d %%' % (val_accuracy))
 
     # # Optionally print classwise accuracies
