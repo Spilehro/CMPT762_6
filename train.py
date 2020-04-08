@@ -144,7 +144,7 @@ if IS_GPU:
 
 load_model = False
 if load_model:
-    model_name = 'checkPoints/model_0.pth'
+    model_name = 'checkPoints/model_best.pth'
     net.load_state_dict(torch.load(model_name))
 
 start = time.time()
