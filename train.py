@@ -123,6 +123,7 @@ print("Test set size: "+str(len(testset)))
 classes = ['apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 'beetle', 'bicycle', 'bottle', 'bowl', 'boy', 'bridge', 'bus', 'butterfly', 'camel', 'can', 'castle', 'caterpillar', 'cattle', 'chair', 'chimpanzee', 'clock', 'cloud', 'cockroach', 'couch', 'crab', 'crocodile', 'cup', 'dinosaur', 'dolphin', 'elephant', 'flatfish', 'forest', 'fox', 'girl', 'hamster', 'house', 'kangaroo', 'keyboard', 'lamp', 'lawn_mower', 'leopard', 'lion', 'lizard', 'lobster', 'man', 'maple_tree', 'motorcycle', 'mountain', 'mouse', 'mushroom', 'oak_tree', 'orange', 'orchid', 'otter', 'palm_tree', 'pear', 'pickup_truck', 'pine_tree', 'plain', 'plate', 'poppy', 'porcupine', 'possum', 'rabbit', 'raccoon', 'ray', 'road', 'rocket', 'rose', 'sea', 'seal', 'shark', 'shrew', 'skunk', 'skyscraper', 'snail', 'snake', 'spider', 'squirrel', 'streetcar', 'sunflower', 'sweet_pepper', 'table', 'tank', 'telephone', 'television', 'tiger', 'tractor', 'train', 'trout', 'tulip', 'turtle', 'wardrobe', 'whale', 'willow_tree', 'wolf', 'woman', 'worm']
 
 lr = 0.005
+
 net = BaseNet()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
@@ -131,6 +132,7 @@ plt.ioff()
 fig = plt.figure()
 train_loss_over_epochs = []
 val_accuracy_over_epochs = []
+best_epoch =0
 
 #Create an instance of the nn.module class defined above:
 
@@ -184,6 +186,7 @@ for epoch in range(EPOCHS):  # loop over the dataset multiple times
         calculate_val_accuracy(valloader, IS_GPU)
     if( val_accuracy>max_val):
         max_val = val_accuracy
+        best_epoch = epoch
         torch.save(net.state_dict(), '%s/model_best.pth' % (checkpoints_root))
     print('Accuracy of the network on the val images: %d %%' % (val_accuracy))
 
@@ -198,6 +201,7 @@ for epoch in range(EPOCHS):  # loop over the dataset multiple times
         torch.save(net.state_dict(), '%s/model_%d.pth' % (checkpoints_root, epoch))
 
 print(time.time()-start)
+print('Highest accuracy is %3f and best epoch is %d.'%(max_val,best_epoch))
 plt.subplot(2, 1, 1)
 plt.ylabel('Train loss')
 plt.plot(np.arange(EPOCHS), train_loss_over_epochs, 'k-')

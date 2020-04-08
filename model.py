@@ -22,23 +22,23 @@ class BaseNet(nn.Module):
         # Do not have a maxpool layer after every conv layer in your
         # deeper network as it leads to too much loss of information.
 
-        self.conv1 = nn.Conv2d(3, 6, 3,padding=1)
+        self.conv1 = nn.Conv2d(3, 6, 5,padding=2)
         self.bn1 = nn.BatchNorm2d(6)
         self.pool = nn.MaxPool2d(2,2)
 
-        self.conv2 = nn.Conv2d(6, 16,3,padding=1 )
+        self.conv2 = nn.Conv2d(6, 16,5,padding=2 )
         self.bn2 = nn.BatchNorm2d(16)
 
-        self.conv3 = nn.Conv2d(16, 32, 3,padding=1)
+        self.conv3 = nn.Conv2d(16, 32, 5,padding=2)
         self.bn3 = nn.BatchNorm2d(32)
 
-        self.conv4 = nn.Conv2d(32, 64, 3,padding=1)
+        self.conv4 = nn.Conv2d(32, 64, 5,padding=2)
         self.bn4 = nn.BatchNorm2d(64)
 
-        self.conv5 = nn.Conv2d(64, 128, 3,padding=1)
+        self.conv5 = nn.Conv2d(64, 128, 5,padding=2)
         self.bn5 = nn.BatchNorm2d(128)
 
-        self.conv6 = nn.Conv2d(128, 256, 3,padding=1)
+        self.conv6 = nn.Conv2d(128, 256, 5,padding=2)
         self.bn6 = nn.BatchNorm2d(256)
 
         # <<TODO#3>> Add more linear (fc) layers
@@ -48,12 +48,15 @@ class BaseNet(nn.Module):
         # http://pytorch.org/docs/master/nn.html#torch.nn.Sequential
         
         self.fc_net = nn.Sequential(
-            nn.Linear( 256* 4 * 4, TOTAL_CLASSES//8),
+            nn.Linear( 256* 4 * 4, TOTAL_CLASSES//4),
             nn.ReLU(inplace=True),
-            nn.Linear(TOTAL_CLASSES//8, TOTAL_CLASSES//4),
-            nn.ReLU(inplace=True),
+            # nn.BatchNorm1d(TOTAL_CLASSES//4)
+            # nn.Linear(TOTAL_CLASSES//8, TOTAL_CLASSES//4),
+            # nn.ReLU(inplace=True),
             nn.Linear(TOTAL_CLASSES//4, TOTAL_CLASSES//2),
             nn.ReLU(inplace=True),
+            # nn.Linear(TOTAL_CLASSES//4, TOTAL_CLASSES//2),
+            # nn.ReLU(inplace= True),
             nn.Linear(TOTAL_CLASSES//2, TOTAL_CLASSES),
             nn.ReLU(inplace= True)
 

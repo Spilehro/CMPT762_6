@@ -73,7 +73,7 @@ net = BaseNet()
 if IS_GPU:
     net = net.cuda()
 
-model_name = 'checkPoints/model_99.pth'
+model_name = 'checkPoints/model_best.pth'
 net.load_state_dict(torch.load(model_name))
 net.eval()
 start = time.time()
