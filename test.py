@@ -28,7 +28,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from model import BaseNet
+from tryModel import BaseNet
 from dataloader import CIFAR100_SFU_CV
 import time
 # save numpy array as csv file
@@ -81,7 +81,7 @@ start = time.time()
 running_loss = 0.0
 
 count = 0
-with open("submission51.csv","w") as file_csv: 
+with open("submission55.csv","w") as file_csv: 
     file_csv.write("ID,Prediction1\n")   
     for i, data in enumerate(testloader, 0):
         # get the inputs

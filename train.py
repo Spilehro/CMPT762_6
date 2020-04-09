@@ -28,7 +28,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from model import BaseNet
+from tryModel import BaseNet
 from dataloader import CIFAR100_SFU_CV
 import time
 
@@ -90,7 +90,7 @@ def calculate_val_accuracy(valloader,is_gpu):
 
 
 train_transform = transforms.Compose(
-    [transforms.RandomCrop(20),
+    [#transforms.RandomCrop(20),
      transforms.Resize((32,32)),
      transforms.RandomHorizontalFlip(p=0.5),
      transforms.ToTensor(),
